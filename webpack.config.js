@@ -1,39 +1,48 @@
-const { shareAll, withModuleFederationPlugin } = require('@angular-architects/module-federation/webpack');
-const webpack = require('webpack');
-module.exports = new withModuleFederationPlugin({
-  name: 'chat',
+const { shareAll } = require('@angular-architects/module-federation/webpack');
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const mf = require("@angular-architects/module-federation/webpack");
+const path = require("path");
 
-  exposes: {
-    './Module': './src/app/chat/chat.module.ts',
+const sharedMappings = new mf.SharedMappings();
+sharedMappings.register(
+  path.join(__dirname, 'tsconfig.json'),
+  [/* mapped paths to share */]);
+
+module.exports = {
+  output: {
+    uniqueName: "chat",
+    publicPath: "auto",
+    scriptType:'text/javascript'
   },
-
-  shared: {
-    ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+  optimization: {
+    runtimeChunk: false
   },
-})
-// module.exports = {
-//   plugins: [
-//     new webpack.DefinePlugin({
-//       'process.env': {
-//         captcha_key : JSON.stringify(process.env.captcha_key),
-//         firebase_apiKey : JSON.stringify(process.env.firebase_apiKey),
-//         firebase_authDomain : JSON.stringify(process.env.firebase_authDomain),
-//         firebase_databaseURL : JSON.stringify(process.env.firebase_databaseURL),
-//         firebase_projectId : JSON.stringify(process.env.firebase_projectId),
-//         firebase_storageBucket : JSON.stringify(process.env.firebase_storageBucket),
-//         firebase_messagingSenderId : JSON.stringify(process.env.firebase_messagingSenderId),
-//         firebase_appId : JSON.stringify(process.env.firebase_appId),
-//         firebase_measurementId : JSON.stringify(process.env.firebase_measurementId)
-//       },
-//       name: 'chat',
+  resolve: {
+    alias: {
+      ...sharedMappings.getAliases(),
+    }
+  },
+  experiments: {
+    outputModule: true
+  },
+  plugins: [
+    new ModuleFederationPlugin({
+        name: "chat",
+        filename: "remoteEntry.js",
+        exposes: {
+          './Module': './src/app/chat/chat.module.ts',
+          'ChatComponent': './src/app/chat/chat/chat.component.ts',
+        },
 
-//       exposes: {
-//         './Module': './src/app/IM-FE-chat/IM-FE-chat.module.ts',
-//       },
+        remotes: {
+            "chat": "http://localhost:3000/remoteEntry.js",
 
-//       shared: {
-//         ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
-//       },
-//     })
-//   ]
-// }
+        },
+        shared: {
+          ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+        },
+
+    }),
+    sharedMappings.getPlugin()
+  ],
+};
