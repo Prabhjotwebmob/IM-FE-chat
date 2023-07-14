@@ -77,8 +77,8 @@
 					},
 					"defaultConfiguration": "development",
 					"options": {
-						"port": 3000,
-						"publicHost": "http://localhost:3000",
+						"port": 4003,
+						"publicHost": "http://localhost:4003",
 						"extraWebpackConfig": "webpack.config.js"
 					}
 				},
@@ -110,6 +110,5 @@
 				}
 			}
 		}
-	},
-	"defaultProject": "chat"
+	}
 }

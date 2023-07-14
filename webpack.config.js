@@ -35,7 +35,7 @@ module.exports = {
         },
 
         remotes: {
-            "chat": "http://localhost:3000/remoteEntry.js",
+            "chat": "http://localhost:4003/remoteEntry.js",
 
         },
         shared: {
